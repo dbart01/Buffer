@@ -10,7 +10,7 @@ import Foundation
 
 public typealias Byte = UInt8
 
-public struct Buffer: Collection, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
+public struct Buffer: Collection, MutableCollection, RandomAccessCollection, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
     
     public typealias Element = Byte
     
