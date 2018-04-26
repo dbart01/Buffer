@@ -6,7 +6,7 @@
 //  Copyright © 2018 Dima Bart. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 //! Project version number for Buffer.
 FOUNDATION_EXPORT double BufferVersionNumber;
