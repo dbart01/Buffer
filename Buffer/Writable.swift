@@ -15,12 +15,10 @@ public protocol Writable {
 
 extension Writable {
     
-    @discardableResult
     public func write<T>(at offset: Int = 0, value: T) {
         self.write(at: offset, value: value)
     }
     
-    @discardableResult
     public func write(at offset: Int = 0, data: Data) {
         self.write(at: offset, data: data)
     }

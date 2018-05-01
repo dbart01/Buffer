@@ -42,7 +42,7 @@ class BufferTests: XCTestCase {
     func testInitFromBuffer() {
         let data    = Data(bytes: [0xAB, 0xCD, 0xEF, 0xED])
         let buffer1 = Buffer(data)
-        var buffer2 = Buffer(buffer1)
+        let buffer2 = Buffer(buffer1)
         
         XCTAssertEqual(buffer1, buffer2)
         
@@ -113,7 +113,7 @@ class BufferTests: XCTestCase {
     //  MARK: - Write -
     //
     func testWriteType() {
-        var buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
+        let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         
         buffer.write(at: 0, value: 0xDDCCBBAA as UInt32)
         
@@ -122,7 +122,7 @@ class BufferTests: XCTestCase {
     }
     
     func testWriteData() {
-        var buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
+        let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         
         let data = Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD])
         buffer.write(at: 0, data: data)
@@ -135,7 +135,7 @@ class BufferTests: XCTestCase {
     //  MARK: - Read -
     //
     func testReadType() {
-        var buffer = Buffer(size: 32)
+        let buffer = Buffer(size: 32)
         
         buffer.write(at: 0,  value: 1 as UInt8)
         buffer.write(at: 8,  value: 2 as UInt8)
