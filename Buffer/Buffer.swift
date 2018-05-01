@@ -8,9 +8,7 @@
 
 import Foundation
 
-public typealias Byte = UInt8
-
-public struct Buffer: Collection, MutableCollection, RandomAccessCollection, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
+public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomAccessCollection, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
     
     public typealias Element = Byte
     
@@ -67,6 +65,27 @@ public struct Buffer: Collection, MutableCollection, RandomAccessCollection, Equ
     }
     
     // ----------------------------------
+    //  MARK: - Cursors -
+    //
+    public func cursorForWriting(at offset: Int) -> WritingCursor {
+        self.assertWithinBounds(offset: offset, size: self.size - offset)
+        return WritingCursor(to: self, offset: offset, size: self.size - offset)
+    }
+    
+    public func write(at offset: Int = 0, block: (WritingCursor) -> Void) {
+        block(self.cursorForWriting(at: offset))
+    }
+    
+    public func cursorForReading(at offset: Int) -> ReadingCursor {
+        self.assertWithinBounds(offset: offset, size: self.size - offset)
+        return ReadingCursor(to: self, offset: offset, size: self.size - offset)
+    }
+    
+    public func read(at offset: Int = 0, block: (ReadingCursor) -> Void) {
+        block(self.cursorForReading(at: offset))
+    }
+    
+    // ----------------------------------
     //  MARK: - Equatable -
     //
     public static func ==(lhs: Buffer, rhs: Buffer) -> Bool {
@@ -99,24 +118,26 @@ public struct Buffer: Collection, MutableCollection, RandomAccessCollection, Equ
     //
     public subscript(index: Int) -> Byte {
         get {
+            self.assertWithinBounds(offset: index, size: 1)
             return self.store[index]
         }
         set(byte) {
+            self.assertWithinBounds(offset: index, size: 1)
             self.store.advanced(by: index).initialize(to: byte)
         }
     }
     
     // ----------------------------------
-    //  MARK: - Write -
+    //  MARK: - Writable -
     //
-    public mutating func write<T>(at offset: Int, value: T) {
+    public func write<T>(at offset: Int, value: T) {
         self.assertWithinBounds(offset: offset, type: T.self)
         self.store.advanced(by: offset).withMemoryRebound(to: T.self, capacity: 1) {
             $0.initialize(to: value)
         }
     }
     
-    public mutating func write(at offset: Int, data: Data) {
+    public func write(at offset: Int, data: Data) {
         let count = data.count
         self.assertWithinBounds(offset: offset, size: count)
         data.withUnsafeBytes { (bytes: UnsafePointer<Byte>) in
@@ -125,12 +146,8 @@ public struct Buffer: Collection, MutableCollection, RandomAccessCollection, Equ
     }
     
     // ----------------------------------
-    //  MARK: - Read -
+    //  MARK: - Readable -
     //
-    public func read<T>(at offset: Int) -> T {
-        return self.read(T.self, at: offset)
-    }
-    
     public func read<T>(_ type: T.Type, at offset: Int) -> T {
         self.assertWithinBounds(offset: offset, type: T.self)
         return self.store.advanced(by: offset).withMemoryRebound(to: type, capacity: 1) { $0.pointee }
