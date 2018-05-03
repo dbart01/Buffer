@@ -14,6 +14,4 @@ FOUNDATION_EXPORT double BufferVersionNumber;
 //! Project version string for Buffer.
 FOUNDATION_EXPORT const unsigned char BufferVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <Buffer/PublicHeader.h>
-
-
+#import "_Buffer.h"
