@@ -17,13 +17,13 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
     public let startIndex: Int
     public let endIndex:   Int
     
-    private let store: UnsafeMutablePointer<Byte>
+    private let store: UnsafeMutableRawPointer
     
     // ----------------------------------
     //  MARK: - Allocation -
     //
-    private static func allocate(size: Int) -> UnsafeMutablePointer<Byte> {
-        return UnsafeMutablePointer<Byte>.allocate(capacity: size)
+    private static func allocate(size: Int) -> UnsafeMutableRawPointer {
+        return UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 1)
     }
     
     // ----------------------------------
@@ -37,31 +37,52 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
         self.endIndex   = size
         
         if zero {
-            self.store.initialize(repeating: 0x00, count: size)
+            self.store.initializeMemory(as: Byte.self, repeating: 0x00, count: size)
         }
     }
     
     public init(_ buffer: Buffer) {
-        self.size  = buffer.size
-        self.store = Buffer.allocate(size: size)
-        
-        self.startIndex = 0
-        self.endIndex   = buffer.size
-        
-        self.store.initialize(from: buffer.store, count: buffer.size)
+        self.init(buffer.store, count: buffer.size)
     }
     
-    public init<T>(_ collection: T) where T: Collection, T.Element == Element {
-        let count  = collection.count
+    public init(_ pointer: UnsafeRawPointer, count: Int) {
         self.size  = count
         self.store = Buffer.allocate(size: size)
         
         self.startIndex = 0
         self.endIndex   = count
         
-        for (index, byte) in collection.enumerated() {
-            self.store.advanced(by: index).initialize(to: byte)
+        self.store.copyMemory(from: pointer, byteCount: count)
+    }
+    
+    public init(_ array: Array<Byte>) {
+        self.size  = array.count
+        self.store = Buffer.allocate(size: size)
+
+        self.startIndex = 0
+        self.endIndex   = array.count
+
+        if array.count > 0 {
+            array.withUnsafeBytes {
+                self.store.copyMemory(from: $0.baseAddress!, byteCount: array.count)
+            }
         }
+    }
+    
+    public init(_ data: Data) {
+        self.size  = data.count
+        self.store = Buffer.allocate(size: size)
+        
+        self.startIndex = 0
+        self.endIndex   = data.count
+        
+        data.withUnsafeBytes { bytes in
+            self.store.copyMemory(from: bytes, byteCount: data.count)
+        }
+    }
+    
+    public init<T>(_ collection: T) where T: Collection, T.Element == Element {
+        self.init(Array(collection))
     }
     
     // ----------------------------------
@@ -103,7 +124,7 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
     }
     
     public var debugDescription: String {
-        return self.visualize(memory: self.store, stride: self.size)
+        return self.visualize(stride: self.size)
     }
     
     // ----------------------------------
@@ -119,11 +140,11 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
     public subscript(index: Int) -> Byte {
         get {
             self.assertWithinBounds(offset: index, size: 1)
-            return self.store[index]
+            return self.store.advanced(by: index).assumingMemoryBound(to: Byte.self).pointee
         }
         set(byte) {
             self.assertWithinBounds(offset: index, size: 1)
-            self.store.advanced(by: index).initialize(to: byte)
+            self.store.advanced(by: index).initializeMemory(as: Byte.self, repeating: byte, count: 1)
         }
     }
     
@@ -132,16 +153,14 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
     //
     public func write<T>(at offset: Int, value: T) {
         self.assertWithinBounds(offset: offset, type: T.self)
-        self.store.advanced(by: offset).withMemoryRebound(to: T.self, capacity: 1) {
-            $0.initialize(to: value)
-        }
+        UnsafeMutableRawPointer(self.store).advanced(by: offset).initializeMemory(as: T.self, repeating: value, count: 1)
     }
     
     public func write(at offset: Int, data: Data) {
         let count = data.count
         self.assertWithinBounds(offset: offset, size: count)
         data.withUnsafeBytes { (bytes: UnsafePointer<Byte>) in
-            self.store.advanced(by: offset).initialize(from: bytes, count: count)
+            _ = UnsafeMutableRawPointer(self.store).advanced(by: offset).initializeMemory(as: Byte.self, from: bytes, count: count)
         }
     }
     
@@ -150,7 +169,7 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
     //
     public func read<T>(_ type: T.Type, at offset: Int) -> T {
         self.assertWithinBounds(offset: offset, type: T.self)
-        return self.store.advanced(by: offset).withMemoryRebound(to: type, capacity: 1) { $0.pointee }
+        return self.store.advanced(by: offset).assumingMemoryBound(to: type).pointee
     }
     
     public func read(at offset: Int, size: Int) -> Data {
@@ -175,7 +194,7 @@ public struct Buffer: Writable, Readable, Collection, MutableCollection, RandomA
     // ----------------------------------
     //  MARK: - Visualize -
     //
-    private func visualize(memory: UnsafeMutablePointer<Byte>, stride: Int, group: Int = 8) -> String {
+    private func visualize(stride: Int, group: Int = 8) -> String {
         var hex: [String] = []
         for byte in self {
             let value = String(format: "%02X", byte)

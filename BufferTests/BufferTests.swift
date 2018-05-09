@@ -26,7 +26,38 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(data, Data(count: 64))
     }
     
-    func testInitFromCollection() {
+    func testInitFromBuffer() {
+        let data    = Data(bytes: [0xAB, 0xCD, 0xEF, 0xED])
+        let buffer1 = Buffer(data)
+        let buffer2 = Buffer(buffer1)
+        
+        XCTAssertEqual(buffer1, buffer2)
+        
+        buffer2.write(at: 0, value: 0xFEFEFEFE as UInt32)
+        
+        XCTAssertNotEqual(buffer1, buffer2)
+    }
+    
+    func testInitFromPointer() {
+        let capacity = 4
+        let pointer  = UnsafeMutablePointer<Byte>.allocate(capacity: capacity)
+        pointer.advanced(by: 0).pointee = 0xAB
+        pointer.advanced(by: 1).pointee = 0xCD
+        pointer.advanced(by: 2).pointee = 0xEF
+        pointer.advanced(by: 3).pointee = 0xED
+        
+        let buffer = Buffer(pointer, count: capacity)
+        
+        XCTAssertNotNil(buffer)
+        XCTAssertEqual(buffer.size,       capacity)
+        XCTAssertEqual(buffer.startIndex, 0)
+        XCTAssertEqual(buffer.endIndex,   capacity)
+        
+        let data = buffer.read(at: 0, size: capacity)
+        XCTAssertEqual(data, Data(bytes: [0xAB, 0xCD, 0xEF, 0xED]))
+    }
+    
+    func testInitFromArray() {
         let bytes: [Byte] = [0xAB, 0xCD, 0xEF, 0xED]
         let buffer = Buffer(bytes)
         
@@ -39,16 +70,31 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(data, Data(bytes: bytes))
     }
     
-    func testInitFromBuffer() {
-        let data    = Data(bytes: [0xAB, 0xCD, 0xEF, 0xED])
-        let buffer1 = Buffer(data)
-        let buffer2 = Buffer(buffer1)
+    func testInitFromData() {
+        let bytes: [Byte] = [0xAB, 0xCD, 0xEF, 0xED]
+        let input  = Data(bytes: bytes)
+        let buffer = Buffer(input)
         
-        XCTAssertEqual(buffer1, buffer2)
+        XCTAssertNotNil(buffer)
+        XCTAssertEqual(buffer.size,       4)
+        XCTAssertEqual(buffer.startIndex, 0)
+        XCTAssertEqual(buffer.endIndex,   4)
         
-        buffer2.write(at: 0, value: 0xFEFEFEFE as UInt32)
+        let data = buffer.read(at: 0, size: 4)
+        XCTAssertEqual(data, Data(bytes: bytes))
+    }
+    
+    func testInitFromCollection() {
+        let bytes: ArraySlice<UInt8> = [0xAB, 0xCD, 0xEF, 0xED][0..<4]
+        let buffer = Buffer(bytes)
         
-        XCTAssertNotEqual(buffer1, buffer2)
+        XCTAssertNotNil(buffer)
+        XCTAssertEqual(buffer.size,       4)
+        XCTAssertEqual(buffer.startIndex, 0)
+        XCTAssertEqual(buffer.endIndex,   4)
+        
+        let data = buffer.read(at: 0, size: 4)
+        XCTAssertEqual(data, Data(bytes: bytes))
     }
     
     // ----------------------------------
