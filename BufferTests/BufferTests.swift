@@ -144,7 +144,7 @@ class BufferTests: XCTestCase {
     
     func testRandomUpdate() {
         let bytes  = [0xAB, 0xCD, 0xEF, 0xED] as [Byte]
-        var buffer = Buffer(bytes)
+        let buffer = Buffer(bytes)
         
         buffer[0] = 0xDE
         buffer[1] = 0xAD
@@ -175,6 +175,72 @@ class BufferTests: XCTestCase {
         
         let readData = buffer.read(at: 0, size: 4)
         XCTAssertEqual(readData, Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
+    }
+    
+    // ----------------------------------
+    //  MARK: - Inflating -
+    //
+    func testWriteInflateType() {
+        let buffer = Buffer([0xAA, 0xBB])
+        
+        buffer.write(at: 2, value: 0xCC as UInt8)
+        
+        XCTAssertEqual(buffer.size, 3)
+        XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
+        
+        buffer.write(at: 3, value: 0xDD as UInt8)
+        
+        XCTAssertEqual(buffer.size, 4)
+        XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
+        
+        XCTAssertEqual(buffer.read(size: 4), Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
+    }
+    
+    func testWriteInflateEmptyData() {
+        let buffer = Buffer(size: 0)
+        let data   = Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD])
+        
+        buffer.write(data: data)
+        
+        XCTAssertEqual(buffer.size, 4)
+        XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
+        
+        XCTAssertEqual(buffer.read(size: 4), data)
+    }
+    
+    func testWriteInflateAppendingData() {
+        let buffer = Buffer([0xAA, 0xBB, 0xCC, 0xDD])
+        let data   = Data(bytes: [0x01, 0x02, 0x03, 0x04])
+        
+        XCTAssertEqual(buffer.size,     4)
+        XCTAssertEqual(buffer.capacity, 4)
+        
+        buffer.write(at: 4, data: data)
+        
+        XCTAssertEqual(buffer.size, 8)
+        XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
+        
+        XCTAssertEqual(buffer.read(size: 8), Data(bytes: [
+            0xAA, 0xBB, 0xCC, 0xDD,
+            0x01, 0x02, 0x03, 0x04,
+        ]))
+    }
+    
+    func testWriteInflateOverlappingData() {
+        let buffer = Buffer([0xAA, 0xBB, 0xCC, 0xDD])
+        let data   = Data(bytes: [0x01, 0x02, 0x03, 0x04])
+        
+        XCTAssertEqual(buffer.size,     4)
+        XCTAssertEqual(buffer.capacity, 4)
+        
+        buffer.write(at: 2, data: data)
+        
+        XCTAssertEqual(buffer.size, 6)
+        XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
+        
+        XCTAssertEqual(buffer.read(size: 6), Data(bytes: [
+            0xAA, 0xBB, 0x01, 0x02, 0x03, 0x04,
+        ]))
     }
     
     // ----------------------------------
@@ -212,7 +278,7 @@ class BufferTests: XCTestCase {
     //  MARK: - Description -
     //
     func testLongDescription() {
-        var buffer = Buffer(size: 64)
+        let buffer = Buffer(size: 64)
         
         for i in 0..<64 {
             buffer[i] = Byte(i)

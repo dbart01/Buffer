@@ -11,8 +11,8 @@ import Buffer
 
 class PerformanceTests: XCTestCase {
     
-    private let testCapacity  = 1_000_000
-    private let arrayCapacity = 1_000
+    private let testCapacity  = 100_000
+    private let arrayCapacity = 100
     
     // ----------------------------------
     //  MARK: - Init -
@@ -69,7 +69,7 @@ class PerformanceTests: XCTestCase {
     //  MARK: - Writing -
     //
     func testWriteTypeUsingSubscript() {
-        var buffer = Buffer(size: self.testCapacity)
+        let buffer = Buffer(size: self.testCapacity)
         
         measure {
             for i in 0..<self.testCapacity {
@@ -103,7 +103,7 @@ class PerformanceTests: XCTestCase {
     //  MARK: - Reading -
     //
     func testReadTypeUsingSubscript() {
-        var buffer = Buffer(size: self.testCapacity)
+        let buffer = Buffer(size: self.testCapacity)
         
         for i in 0..<self.testCapacity {
             buffer[i] = 0xFE
@@ -117,7 +117,7 @@ class PerformanceTests: XCTestCase {
     }
     
     func testReadTypeUsingOffset() {
-        var buffer = Buffer(size: self.testCapacity)
+        let buffer = Buffer(size: self.testCapacity)
         
         for i in 0..<self.testCapacity {
             buffer[i] = 0xFE
@@ -131,7 +131,7 @@ class PerformanceTests: XCTestCase {
     }
     
     func testReadDataUsingOffset() {
-        var buffer = Buffer(size: self.testCapacity)
+        let buffer = Buffer(size: self.testCapacity)
         
         for i in 0..<self.testCapacity {
             buffer[i] = 0xFE
