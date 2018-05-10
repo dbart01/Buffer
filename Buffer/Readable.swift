@@ -25,4 +25,9 @@ extension Readable {
     public func read(at offset: Int = 0, size: Int) -> Data {
         return self.read(at: offset, size: size)
     }
+    
+    public func read(at offset: Int = 0, size: Int) -> String? {
+        let data = self.read(at: offset, size: size)
+        return String(data: data, encoding: .utf8)
+    }
 }

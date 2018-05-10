@@ -43,9 +43,9 @@ extension Buffer {
             self.advanceOffset(usingStride: T.self)
         }
         
-        public func write(at offset: Int, data: Data) {
-            self.buffer.write(at: self.offset + offset, data: data)
-            self.advanceOffset(by: data.count)
+        public func write<T>(at offset: Int, bytes: UnsafePointer<T>, count: Int) {
+            self.buffer.write(at: self.offset + offset, bytes: bytes, count: count)
+            self.advanceOffset(by: count)
         }
     }
 }

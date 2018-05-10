@@ -177,6 +177,20 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(readData, Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
     }
     
+    func testWriteString() {
+        let buffer = Buffer(size: 19)
+        let string = "something important"
+        
+        buffer.write(string: string)
+        
+        let readData = buffer.read(at: 0, size: 19)
+        XCTAssertEqual(readData, Data(bytes: [
+            0x73, 0x6f, 0x6d, 0x65, 0x74, 0x68, 0x69, 0x6e, 0x67,
+            0x20,
+            0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x61, 0x6e, 0x74,
+        ]))
+    }
+    
     // ----------------------------------
     //  MARK: - Inflating -
     //
@@ -272,6 +286,20 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.read(at: 1, size: 1), Data(bytes: [0xCD]))
         XCTAssertEqual(buffer.read(at: 2, size: 1), Data(bytes: [0xEF]))
         XCTAssertEqual(buffer.read(at: 3, size: 1), Data(bytes: [0xED]))
+    }
+    
+    func testReadString() {
+        let buffer = Buffer([
+            0x73, 0x6f, 0x6d, 0x65, 0x74, 0x68, 0x69, 0x6e, 0x67,
+            // 'something'
+            0x20,
+            // ' '
+            0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x61, 0x6e, 0x74,
+            // 'important'
+        ])
+        
+        let string: String? = buffer.read(size: 19)
+        XCTAssertEqual(string, "something important")
     }
     
     // ----------------------------------

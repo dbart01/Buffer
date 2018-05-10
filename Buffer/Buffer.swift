@@ -206,16 +206,11 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.store.advanced(by: offset).initializeMemory(as: T.self, repeating: value, count: 1)
     }
     
-    public func write(at offset: Int, data: Data) {
-        let count = data.count
-        if count > 0 {
-            self.inflateIfOverflowing(at: offset, insertionSize: data.count)
-            self.incrementIfOverflowing(at: offset, insertionSize: data.count)
-            
-            _ = data.withUnsafeBytes { (bytes: UnsafePointer<Byte>) in
-                self.store.advanced(by: offset).initializeMemory(as: Byte.self, from: bytes, count: count)
-            }
-        }
+    public func write<T>(at offset: Int, bytes: UnsafePointer<T>, count: Int) {
+        self.inflateIfOverflowing(at: offset, insertionSize: count)
+        self.incrementIfOverflowing(at: offset, insertionSize: count)
+        
+        self.store.advanced(by: offset).initializeMemory(as: T.self, from: bytes, count: count)
     }
     
     // ----------------------------------

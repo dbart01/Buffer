@@ -10,7 +10,7 @@ import Foundation
 
 public protocol Writable {
     func write<T>(at offset: Int, value: T)
-    func write(at offset: Int, data: Data)
+    func write<T>(at offset: Int, bytes: UnsafePointer<T>, count: Int)
 }
 
 extension Writable {
@@ -20,6 +20,20 @@ extension Writable {
     }
     
     public func write(at offset: Int = 0, data: Data) {
-        self.write(at: offset, data: data)
+        let count = data.count
+        if count > 0 {
+            _ = data.withUnsafeBytes { (bytes: UnsafePointer<Byte>) in
+                self.write(at: offset, bytes: bytes, count: count)
+            }
+        }
+    }
+    
+    public func write(at offset: Int = 0, string: String) {
+        let length = string.lengthOfBytes(using: .utf8)
+        if length > 0 {
+            string.withCString { cString in
+                self.write(at: offset, bytes: cString, count: length)
+            }
+        }
     }
 }
