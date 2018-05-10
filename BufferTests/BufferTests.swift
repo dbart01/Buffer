@@ -33,7 +33,7 @@ class BufferTests: XCTestCase {
         
         XCTAssertEqual(buffer1, buffer2)
         
-        buffer2.write(at: 0, value: 0xFEFEFEFE as UInt32)
+        buffer2.write(value: 0xFEFEFEFE as UInt32, at: 0)
         
         XCTAssertNotEqual(buffer1, buffer2)
     }
@@ -161,7 +161,7 @@ class BufferTests: XCTestCase {
     func testWriteType() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         
-        buffer.write(at: 0, value: 0xDDCCBBAA as UInt32)
+        buffer.write(value: 0xDDCCBBAA as UInt32)
         
         let data = buffer.read(at: 0, size: 4)
         XCTAssertEqual(data, Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
@@ -171,7 +171,7 @@ class BufferTests: XCTestCase {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         
         let data = Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD])
-        buffer.write(at: 0, data: data)
+        buffer.write(data: data)
         
         let readData = buffer.read(at: 0, size: 4)
         XCTAssertEqual(readData, Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
@@ -197,12 +197,12 @@ class BufferTests: XCTestCase {
     func testWriteInflateType() {
         let buffer = Buffer([0xAA, 0xBB])
         
-        buffer.write(at: 2, value: 0xCC as UInt8)
+        buffer.write(value: 0xCC as UInt8, at: 2)
         
         XCTAssertEqual(buffer.size, 3)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
         
-        buffer.write(at: 3, value: 0xDD as UInt8)
+        buffer.write(value: 0xDD as UInt8, at: 3)
         
         XCTAssertEqual(buffer.size, 4)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
@@ -229,7 +229,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.size,     4)
         XCTAssertEqual(buffer.capacity, 4)
         
-        buffer.write(at: 4, data: data)
+        buffer.write(data: data, at: 4)
         
         XCTAssertEqual(buffer.size, 8)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
@@ -247,7 +247,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.size,     4)
         XCTAssertEqual(buffer.capacity, 4)
         
-        buffer.write(at: 2, data: data)
+        buffer.write(data: data, at: 2)
         
         XCTAssertEqual(buffer.size, 6)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
@@ -263,10 +263,10 @@ class BufferTests: XCTestCase {
     func testReadType() {
         let buffer = Buffer(size: 32)
         
-        buffer.write(at: 0,  value: 1 as UInt8)
-        buffer.write(at: 8,  value: 2 as UInt8)
-        buffer.write(at: 16, value: 3 as UInt8)
-        buffer.write(at: 24, value: 4 as UInt8)
+        buffer.write(value: 1 as UInt8, at: 0)
+        buffer.write(value: 2 as UInt8, at: 8)
+        buffer.write(value: 3 as UInt8, at: 16)
+        buffer.write(value: 4 as UInt8, at: 24)
         
         XCTAssertEqual(buffer.read(at: 0),  1 as UInt8)
         XCTAssertEqual(buffer.read(at: 8),  2 as UInt8)

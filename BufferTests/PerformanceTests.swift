@@ -83,7 +83,7 @@ class PerformanceTests: XCTestCase {
         
         measure {
             for i in 0..<self.testCapacity {
-                buffer.write(at: i, value: 0xFE as UInt8)
+                buffer.write(value: 0xFE as UInt8, at: i)
             }
         }
     }
@@ -94,7 +94,7 @@ class PerformanceTests: XCTestCase {
         
         measure {
             for i in 0..<self.testCapacity {
-                buffer.write(at: i, data: data)
+                buffer.write(data: data, at: i)
             }
         }
     }

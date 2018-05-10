@@ -9,30 +9,30 @@
 import Foundation
 
 public protocol Writable {
-    func write<T>(at offset: Int, value: T)
-    func write<T>(at offset: Int, bytes: UnsafePointer<T>, count: Int)
+    func write<T>(value: T, at offset: Int)
+    func write<T>(bytes: UnsafePointer<T>, count: Int, at offset: Int)
 }
 
 extension Writable {
     
-    public func write<T>(at offset: Int = 0, value: T) {
-        self.write(at: offset, value: value)
+    public func write<T>(value: T, at offset: Int = 0) {
+        self.write(value: value, at: offset)
     }
     
-    public func write(at offset: Int = 0, data: Data) {
+    public func write(data: Data, at offset: Int = 0) {
         let count = data.count
         if count > 0 {
             _ = data.withUnsafeBytes { (bytes: UnsafePointer<Byte>) in
-                self.write(at: offset, bytes: bytes, count: count)
+                self.write(bytes: bytes, count: count, at: offset)
             }
         }
     }
     
-    public func write(at offset: Int = 0, string: String) {
+    public func write(string: String, at offset: Int = 0) {
         let length = string.lengthOfBytes(using: .utf8)
         if length > 0 {
             string.withCString { cString in
-                self.write(at: offset, bytes: cString, count: length)
+                self.write(bytes: cString, count: length, at: offset)
             }
         }
     }

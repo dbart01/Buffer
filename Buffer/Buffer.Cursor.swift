@@ -38,13 +38,13 @@ extension Buffer {
 extension Buffer {
     public class WritingCursor: Cursor, Writable {
         
-        public func write<T>(at offset: Int, value: T) {
-            self.buffer.write(at: self.offset + offset, value: value)
+        public func write<T>(value: T, at offset: Int) {
+            self.buffer.write(value: value, at: self.offset + offset)
             self.advanceOffset(usingStride: T.self)
         }
         
-        public func write<T>(at offset: Int, bytes: UnsafePointer<T>, count: Int) {
-            self.buffer.write(at: self.offset + offset, bytes: bytes, count: count)
+        public func write<T>(bytes: UnsafePointer<T>, count: Int, at offset: Int) {
+            self.buffer.write(bytes: bytes, count: count, at: self.offset + offset)
             self.advanceOffset(by: count)
         }
     }

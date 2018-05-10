@@ -199,14 +199,14 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
     // ----------------------------------
     //  MARK: - Writable -
     //
-    public func write<T>(at offset: Int, value: T) {
+    public func write<T>(value: T, at offset: Int) {
         self.inflateIfOverflowing(at: offset, type: T.self)
         self.incrementIfOverflowing(at: offset, type: T.self)
         
         self.store.advanced(by: offset).initializeMemory(as: T.self, repeating: value, count: 1)
     }
     
-    public func write<T>(at offset: Int, bytes: UnsafePointer<T>, count: Int) {
+    public func write<T>(bytes: UnsafePointer<T>, count: Int, at offset: Int) {
         self.inflateIfOverflowing(at: offset, insertionSize: count)
         self.incrementIfOverflowing(at: offset, insertionSize: count)
         
