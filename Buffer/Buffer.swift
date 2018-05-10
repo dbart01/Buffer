@@ -221,9 +221,9 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         return self.store.advanced(by: offset).assumingMemoryBound(to: type).pointee
     }
     
-    public func read(at offset: Int, size: Int) -> Data {
+    public func read<T>(pointerTo type: T.Type, size: Int, at offset: Int) -> UnsafePointer<T> {
         self.assertWithinBounds(at: offset, size: size)
-        return Data(bytes: self.store.advanced(by: offset), count: size)
+        return UnsafePointer(self.store.advanced(by: offset).assumingMemoryBound(to: T.self))
     }
     
     // ----------------------------------

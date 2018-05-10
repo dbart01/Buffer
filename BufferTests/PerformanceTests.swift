@@ -139,7 +139,47 @@ class PerformanceTests: XCTestCase {
         
         measure {
             for i in 0..<self.testCapacity {
-                _ = buffer.read(at: i, size: 1)
+                _ = buffer.read(dataWithSize: 1, at: i)
+            }
+        }
+    }
+    
+    func testReadStringUsingOffset() {
+        let buffer = Buffer(size: self.testCapacity)
+        let string = "something important"
+        let count  = string.count
+        
+        buffer.write {
+            for _ in 0..<self.testCapacity / count {
+                $0.write(string: string)
+            }
+        }
+        
+        measure {
+            var i = 0
+            while i < self.testCapacity {
+                _ = buffer.read(stringWithSize: 19)
+                i += count
+            }
+        }
+    }
+    
+    func testReadUnsafeStringUsingOffset() {
+        let buffer = Buffer(size: self.testCapacity)
+        let string = "something important"
+        let count  = string.count
+        
+        buffer.write {
+            for _ in 0..<self.testCapacity / count {
+                $0.write(string: string)
+            }
+        }
+        
+        measure {
+            var i = 0
+            while i < self.testCapacity {
+                _ = buffer.read(unsafeStringWithSize: 19)
+                i += count
             }
         }
     }

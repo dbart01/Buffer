@@ -81,9 +81,9 @@ class Buffer_CursorTests: XCTestCase {
         let buffer = Buffer([0x34, 0x45, 0x45, 0x56, 0x56, 0x56, 0x56])
         
         buffer.read {
-            XCTAssertEqual($0.read(size: 1), Data([0x34]))
-            XCTAssertEqual($0.read(size: 2), Data([0x45, 0x45]))
-            XCTAssertEqual($0.read(size: 4), Data([0x56, 0x56, 0x56, 0x56]))
+            XCTAssertEqual($0.read(dataWithSize: 1), Data([0x34]))
+            XCTAssertEqual($0.read(dataWithSize: 2), Data([0x45, 0x45]))
+            XCTAssertEqual($0.read(dataWithSize: 4), Data([0x56, 0x56, 0x56, 0x56]))
         }
     }
 }

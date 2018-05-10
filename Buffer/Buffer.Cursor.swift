@@ -59,8 +59,8 @@ extension Buffer {
             return value
         }
         
-        public func read(at offset: Int, size: Int) -> Data {
-            let value = self.buffer.read(at: self.offset + offset, size: size)
+        public func read<T>(pointerTo type: T.Type, size: Int, at offset: Int) -> UnsafePointer<T> {
+            let value = self.buffer.read(pointerTo: type, size: size, at: self.offset + offset)
             self.advanceOffset(by: size)
             return value
         }

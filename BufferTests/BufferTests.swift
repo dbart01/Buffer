@@ -22,7 +22,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.startIndex, 0)
         XCTAssertEqual(buffer.endIndex,   64)
         
-        let data = buffer.read(at: 0, size: 64)
+        let data = buffer.read(dataWithSize: 64, at: 0)
         XCTAssertEqual(data, Data(count: 64))
     }
     
@@ -53,7 +53,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.startIndex, 0)
         XCTAssertEqual(buffer.endIndex,   capacity)
         
-        let data = buffer.read(at: 0, size: capacity)
+        let data = buffer.read(dataWithSize: capacity)
         XCTAssertEqual(data, Data(bytes: [0xAB, 0xCD, 0xEF, 0xED]))
     }
     
@@ -66,7 +66,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.startIndex, 0)
         XCTAssertEqual(buffer.endIndex,   4)
         
-        let data = buffer.read(at: 0, size: 4)
+        let data = buffer.read(dataWithSize: 4)
         XCTAssertEqual(data, Data(bytes: bytes))
     }
     
@@ -80,7 +80,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.startIndex, 0)
         XCTAssertEqual(buffer.endIndex,   4)
         
-        let data = buffer.read(at: 0, size: 4)
+        let data = buffer.read(dataWithSize: 4)
         XCTAssertEqual(data, Data(bytes: bytes))
     }
     
@@ -93,7 +93,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.startIndex, 0)
         XCTAssertEqual(buffer.endIndex,   4)
         
-        let data = buffer.read(at: 0, size: 4)
+        let data = buffer.read(dataWithSize: 4)
         XCTAssertEqual(data, Data(bytes: bytes))
     }
     
@@ -151,7 +151,7 @@ class BufferTests: XCTestCase {
         buffer[2] = 0xBE
         buffer[3] = 0xEF
         
-        let data = buffer.read(at: 0, size: 4)
+        let data = buffer.read(dataWithSize: 4)
         XCTAssertEqual(data, Data(bytes: [0xDE, 0xAD, 0xBE, 0xEF]))
     }
     
@@ -163,7 +163,7 @@ class BufferTests: XCTestCase {
         
         buffer.write(value: 0xDDCCBBAA as UInt32)
         
-        let data = buffer.read(at: 0, size: 4)
+        let data = buffer.read(dataWithSize: 4)
         XCTAssertEqual(data, Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
     }
     
@@ -173,7 +173,7 @@ class BufferTests: XCTestCase {
         let data = Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD])
         buffer.write(data: data)
         
-        let readData = buffer.read(at: 0, size: 4)
+        let readData = buffer.read(dataWithSize: 4)
         XCTAssertEqual(readData, Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
     }
     
@@ -183,8 +183,29 @@ class BufferTests: XCTestCase {
         
         buffer.write(string: string)
         
-        let readData = buffer.read(at: 0, size: 19)
+        let readData = buffer.read(dataWithSize: 19)
         XCTAssertEqual(readData, Data(bytes: [
+            0x73, 0x6f, 0x6d, 0x65, 0x74, 0x68, 0x69, 0x6e, 0x67,
+            0x20,
+            0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x61, 0x6e, 0x74,
+        ]))
+    }
+    
+    func testWriteStringSequence() {
+        let buffer = Buffer(size: 38)
+        let string = "something important"
+        
+        buffer.write {
+            $0.write(string: string)
+            $0.write(string: string)
+        }
+        
+        let readData = buffer.read(dataWithSize: 38)
+        XCTAssertEqual(readData, Data(bytes: [
+            0x73, 0x6f, 0x6d, 0x65, 0x74, 0x68, 0x69, 0x6e, 0x67,
+            0x20,
+            0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x61, 0x6e, 0x74,
+            
             0x73, 0x6f, 0x6d, 0x65, 0x74, 0x68, 0x69, 0x6e, 0x67,
             0x20,
             0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x61, 0x6e, 0x74,
@@ -207,7 +228,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.size, 4)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
         
-        XCTAssertEqual(buffer.read(size: 4), Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
+        XCTAssertEqual(buffer.read(dataWithSize: 4), Data(bytes: [0xAA, 0xBB, 0xCC, 0xDD]))
     }
     
     func testWriteInflateEmptyData() {
@@ -219,7 +240,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.size, 4)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
         
-        XCTAssertEqual(buffer.read(size: 4), data)
+        XCTAssertEqual(buffer.read(dataWithSize: 4), data)
     }
     
     func testWriteInflateAppendingData() {
@@ -234,7 +255,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.size, 8)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
         
-        XCTAssertEqual(buffer.read(size: 8), Data(bytes: [
+        XCTAssertEqual(buffer.read(dataWithSize: 8), Data(bytes: [
             0xAA, 0xBB, 0xCC, 0xDD,
             0x01, 0x02, 0x03, 0x04,
         ]))
@@ -252,7 +273,7 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.size, 6)
         XCTAssertGreaterThanOrEqual(buffer.capacity, buffer.size)
         
-        XCTAssertEqual(buffer.read(size: 6), Data(bytes: [
+        XCTAssertEqual(buffer.read(dataWithSize: 6), Data(bytes: [
             0xAA, 0xBB, 0x01, 0x02, 0x03, 0x04,
         ]))
     }
@@ -282,10 +303,10 @@ class BufferTests: XCTestCase {
     func testReadData() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         
-        XCTAssertEqual(buffer.read(at: 0, size: 1), Data(bytes: [0xAB]))
-        XCTAssertEqual(buffer.read(at: 1, size: 1), Data(bytes: [0xCD]))
-        XCTAssertEqual(buffer.read(at: 2, size: 1), Data(bytes: [0xEF]))
-        XCTAssertEqual(buffer.read(at: 3, size: 1), Data(bytes: [0xED]))
+        XCTAssertEqual(buffer.read(dataWithSize: 1, at: 0), Data(bytes: [0xAB]))
+        XCTAssertEqual(buffer.read(dataWithSize: 1, at: 1), Data(bytes: [0xCD]))
+        XCTAssertEqual(buffer.read(dataWithSize: 1, at: 2), Data(bytes: [0xEF]))
+        XCTAssertEqual(buffer.read(dataWithSize: 1, at: 3), Data(bytes: [0xED]))
     }
     
     func testReadString() {
@@ -298,7 +319,21 @@ class BufferTests: XCTestCase {
             // 'important'
         ])
         
-        let string: String? = buffer.read(size: 19)
+        let string = buffer.read(stringWithSize: 19)
+        XCTAssertEqual(string, "something important")
+    }
+    
+    func testReadUnsafeString() {
+        let buffer = Buffer([
+            0x73, 0x6f, 0x6d, 0x65, 0x74, 0x68, 0x69, 0x6e, 0x67,
+            // 'something'
+            0x20,
+            // ' '
+            0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x61, 0x6e, 0x74,
+            // 'important'
+            ])
+        
+        let string = buffer.read(unsafeStringWithSize: 19)
         XCTAssertEqual(string, "something important")
     }
     

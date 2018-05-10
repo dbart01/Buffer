@@ -10,7 +10,7 @@ import Foundation
 
 public protocol Readable {
     func read<T>(_ type: T.Type, at offset: Int) -> T
-    func read(at offset: Int, size: Int) -> Data
+    func read<T>(pointerTo type: T.Type, size: Int, at offset: Int) -> UnsafePointer<T>
 }
 
 extension Readable {
@@ -22,12 +22,19 @@ extension Readable {
         return self.read(type, at: offset)
     }
     
-    public func read(at offset: Int = 0, size: Int) -> Data {
-        return self.read(at: offset, size: size)
+    public func read(dataWithSize size: Int, at offset: Int = 0) -> Data {
+        let bytes = self.read(pointerTo: Byte.self, size: size, at: offset)
+        return Data(bytes: bytes, count: size)
     }
     
-    public func read(at offset: Int = 0, size: Int) -> String? {
-        let data = self.read(at: offset, size: size)
-        return String(data: data, encoding: .utf8)
+    public func read(stringWithSize size: Int, at offset: Int = 0) -> String? {
+        let bytes  = self.read(pointerTo: Byte.self, size: size, at: offset)
+        let buffer = UnsafeBufferPointer(start: bytes, count: size)
+        return String(bytes: buffer, encoding: .utf8)
+    }
+    
+    public func read(unsafeStringWithSize size: Int, at offset: Int = 0) -> String? {
+        let bytes = self.read(pointerTo: Byte.self, size: size, at: offset)
+        return String(bytesNoCopy: UnsafeMutablePointer(mutating: bytes), length: size, encoding: .utf8, freeWhenDone: false)
     }
 }
