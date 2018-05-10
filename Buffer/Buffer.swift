@@ -88,6 +88,10 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.init(Array(collection))
     }
     
+    deinit {
+        self.store.deallocate()
+    }
+    
     // ----------------------------------
     //  MARK: - Cursors -
     //
