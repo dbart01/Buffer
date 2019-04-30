@@ -79,9 +79,7 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.capacity = self.size
         self.store    = Buffer.allocate(size: self.size)
         
-        data.withUnsafeBytes { bytes in
-            self.store.copyMemory(from: bytes, byteCount: data.count)
-        }
+        self.write(data: data)
     }
     
     public convenience init<T>(_ collection: T) where T: Collection, T.Element == Element {

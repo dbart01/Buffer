@@ -36,7 +36,7 @@ class PerformanceTests: XCTestCase {
     }
     
     func testInitWithData() {
-        let data = Data(bytes: Array<Byte>(repeating: 0xFE, count: self.arrayCapacity))
+        let data = Data(Array<Byte>(repeating: 0xFE, count: self.arrayCapacity))
         
         measure {
             for _ in 0..<self.testCapacity {

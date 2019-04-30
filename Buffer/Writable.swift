@@ -22,8 +22,8 @@ extension Writable {
     public func write(data: Data, at offset: Int = 0) {
         let count = data.count
         if count > 0 {
-            _ = data.withUnsafeBytes { (bytes: UnsafePointer<Byte>) in
-                self.write(bytes: bytes, count: count, at: offset)
+            data.withUnsafeBytes { pointer in
+                self.write(bytes: pointer.baseAddress!.assumingMemoryBound(to: Byte.self), count: count, at: offset)
             }
         }
     }
