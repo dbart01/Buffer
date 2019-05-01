@@ -2,18 +2,35 @@
 //  BufferTests.swift
 //  BufferTests
 //
-//  Created by Dima Bart on 2018-04-25.
-//  Copyright © 2018 Dima Bart. All rights reserved.
+//  The MIT License (MIT)
 //
+//  Copyright © 2019 Dima Bart
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 import XCTest
 import Buffer
 
 class BufferTests: XCTestCase {
     
-    // ----------------------------------
-    //  MARK: - Init -
-    //
+    // MARK: - Init -
+
     func testInitEmpty() {
         let buffer = Buffer(size: 64, zero: true)
         
@@ -97,9 +114,8 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(data, Data(bytes))
     }
     
-    // ----------------------------------
-    //  MARK: - Equality -
-    //
+    // MARK: - Equality -
+
     func testEqual() {
         let data    = Data([0xAB, 0xCD, 0xEF, 0xED])
         let buffer1 = Buffer(data)
@@ -119,9 +135,8 @@ class BufferTests: XCTestCase {
         XCTAssertNotEqual(buffer2, buffer3)
     }
     
-    // ----------------------------------
-    //  MARK: - Collection -
-    //
+    // MARK: - Collection -
+
     func testIteration() {
         let bytes  = [0xAB, 0xCD, 0xEF, 0xED] as [Byte]
         let buffer = Buffer(bytes)
@@ -155,9 +170,8 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(data, Data([0xDE, 0xAD, 0xBE, 0xEF]))
     }
     
-    // ----------------------------------
-    //  MARK: - Write -
-    //
+    // MARK: - Write -
+
     func testWriteType() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         
@@ -212,9 +226,8 @@ class BufferTests: XCTestCase {
         ]))
     }
     
-    // ----------------------------------
-    //  MARK: - Inflating -
-    //
+    // MARK: - Inflating -
+
     func testWriteInflateType() {
         let buffer = Buffer([0xAA, 0xBB])
         
@@ -278,9 +291,8 @@ class BufferTests: XCTestCase {
         ]))
     }
     
-    // ----------------------------------
-    //  MARK: - Read -
-    //
+    // MARK: - Read -
+
     func testReadType() {
         let buffer = Buffer(size: 32)
         
@@ -337,9 +349,8 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(string, "something important")
     }
     
-    // ----------------------------------
-    //  MARK: - Description -
-    //
+    // MARK: - Description -
+
     func testLongDescription() {
         let buffer = Buffer(size: 64)
         

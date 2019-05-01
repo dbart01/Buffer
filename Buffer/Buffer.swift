@@ -2,9 +2,27 @@
 //  Buffer.swift
 //  Buffer
 //
-//  Created by Dima Bart on 2018-04-25.
-//  Copyright © 2018 Dima Bart. All rights reserved.
+//  The MIT License (MIT)
 //
+//  Copyright © 2019 Dima Bart
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 import Foundation
 
@@ -26,16 +44,14 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
     
     private var store: UnsafeMutableRawPointer
     
-    // ----------------------------------
-    //  MARK: - Allocation -
-    //
+    // MARK: - Allocation -
+
     private static func allocate(size: Int) -> UnsafeMutableRawPointer {
         return UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 1)
     }
     
-    // ----------------------------------
-    //  MARK: - Init -
-    //
+    // MARK: - Init -
+
     public init(size: Int, zero: Bool = true) {
         self.size     = size
         self.capacity = size
@@ -90,9 +106,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.store.deallocate()
     }
     
-    // ----------------------------------
-    //  MARK: - Cursors -
-    //
+    // MARK: - Cursors -
+
     public func cursorForWriting(at offset: Int) -> WritingCursor {
         self.assertWithinBounds(at: offset, size: self.size - offset)
         return WritingCursor(to: self, offset: offset, size: self.size - offset)
@@ -111,9 +126,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         block(self.cursorForReading(at: offset))
     }
     
-    // ----------------------------------
-    //  MARK: - Equatable -
-    //
+    // MARK: - Equatable -
+
     public static func ==(lhs: Buffer, rhs: Buffer) -> Bool {
         if lhs.size == rhs.size {
             return memcmp(lhs.store, rhs.store, lhs.size) == 0
@@ -121,9 +135,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         return false
     }
     
-    // ----------------------------------
-    //  MARK: - Description -
-    //
+    // MARK: - Description -
+
     public var description: String {
         return self.debugDescription
     }
@@ -132,16 +145,14 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         return self.visualize(stride: self.size)
     }
     
-    // ----------------------------------
-    //  MARK: - Collection -
-    //
+    // MARK: - Collection -
+
     public func index(after i: Int) -> Int {
         return i + 1
     }
     
-    // ----------------------------------
-    //  MARK: - Subscript -
-    //
+    // MARK: - Subscript -
+
     public subscript(index: Int) -> Byte {
         get {
             self.assertWithinBounds(at: index, size: 1)
@@ -153,16 +164,14 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         }
     }
     
-    // ----------------------------------
-    //  MARK: - Inflation Strategy -
-    //
+    // MARK: - Inflation Strategy -
+    
     private func inflatedCapacity(for overflow: Int, currentCapacity: Int) -> Int {
         return (currentCapacity + overflow) * 2
     }
     
-    // ----------------------------------
-    //  MARK: - Inflate -
-    //
+    // MARK: - Inflate -
+
     private func inflate(for overflow: Int) {
         let inflatedCapacity = self.inflatedCapacity(for: overflow, currentCapacity: self.capacity)
         
@@ -184,9 +193,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.inflateIfOverflowing(at: offset, insertionSize: MemoryLayout<T>.stride)
     }
     
-    // ----------------------------------
-    //  MARK: - Increment -
-    //
+    // MARK: - Increment -
+
     private func incrementIfOverflowing(at offset: Int, insertionSize: Int) {
         let overflow = (offset + insertionSize) - self.size
         if overflow > 0 {
@@ -198,9 +206,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.incrementIfOverflowing(at: offset, insertionSize: MemoryLayout<T>.stride)
     }
     
-    // ----------------------------------
-    //  MARK: - Writable -
-    //
+    // MARK: - Writable -
+
     public func write<T>(value: T, at offset: Int) {
         self.inflateIfOverflowing(at: offset, type: T.self)
         self.incrementIfOverflowing(at: offset, type: T.self)
@@ -215,9 +222,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.store.advanced(by: offset).initializeMemory(as: T.self, from: bytes, count: count)
     }
     
-    // ----------------------------------
-    //  MARK: - Readable -
-    //
+    // MARK: - Readable -
+
     public func read<T>(_ type: T.Type, at offset: Int) -> T {
         self.assertWithinBounds(at: offset, type: T.self)
         return self.store.advanced(by: offset).assumingMemoryBound(to: type).pointee
@@ -228,9 +234,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         return UnsafePointer(self.store.advanced(by: offset).assumingMemoryBound(to: T.self))
     }
     
-    // ----------------------------------
-    //  MARK: - Assertions -
-    //
+    // MARK: - Assertions -
+
     @inline(__always)
     private func assertWithinBounds<T>(at offset: Int, type: T.Type) {
         self.assertWithinBounds(at: offset, size: MemoryLayout<T>.stride)
@@ -242,9 +247,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         assert(offset + size <= self.size, "Buffer (\(self.size) bytes) access out-of-bounds [offset: \(offset), size: \(size)].")
     }
     
-    // ----------------------------------
-    //  MARK: - Visualize -
-    //
+    // MARK: - Visualize -
+
     private func visualize(stride: Int, group: Int = 8) -> String {
         var hex: [String] = []
         for byte in self {
