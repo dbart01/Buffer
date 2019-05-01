@@ -312,6 +312,25 @@ class BufferTests: XCTestCase {
         XCTAssertEqual(buffer.read(UInt8.self, at: 24), 4)
     }
     
+    func testReadPartialType() {
+        let buffer = Buffer(size: 6)
+        
+        buffer.write {
+            $0.write(value: 0xDD as UInt8, at: 0)
+            $0.write(value: 0xFF as UInt8, at: 0)
+            $0.write(value: 0xFF as UInt8, at: 0)
+            $0.write(value: 0xFF as UInt8, at: 0)
+            $0.write(value: 0xFF as UInt8, at: 0)
+            $0.write(value: 0xDD as UInt8, at: 0)
+        }
+
+        let completeInteger = buffer.read(UInt32.self, at: 1)
+        XCTAssertEqual(completeInteger, 0xFFFFFFFF)
+        
+        let partialInteger = buffer.read(UInt32.self, at: 1, size: 3)
+        XCTAssertEqual(partialInteger, 0xFFFFFF)
+    }
+    
     func testReadData() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
         

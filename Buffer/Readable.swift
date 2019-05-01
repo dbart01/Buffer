@@ -40,6 +40,16 @@ extension Readable {
         return self.read(type, at: offset)
     }
     
+    public func read<T>(_ type: T.Type, at offset: Int = 0, size: Int) -> T {
+        let sourcePointer = self.read(pointerTo: UInt8.self, size: size, at: offset)
+
+        var value: T?
+        let pointer = UnsafeMutableRawPointer(mutating: &value)
+        pointer.copyMemory(from: sourcePointer, byteCount: size)
+        
+        return pointer.assumingMemoryBound(to: T.self).pointee
+    }
+    
     public func read(dataWithSize size: Int, at offset: Int = 0) -> Data {
         let bytes = self.read(pointerTo: Byte.self, size: size, at: offset)
         return Data(bytes: bytes, count: size)

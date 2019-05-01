@@ -63,6 +63,8 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
     }
     
     public init(_ pointer: UnsafeRawPointer, count: Int, capacity: Int) {
+        assert(capacity >= count, "Buffer must be initialized with capacity large enough to contain the copied bytes.")
+        
         self.size     = count
         self.capacity = capacity
         self.store    = Buffer.allocate(size: capacity)
