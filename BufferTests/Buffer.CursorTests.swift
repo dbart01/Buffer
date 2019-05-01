@@ -31,9 +31,17 @@ class Buffer_CursorTests: XCTestCase {
     
     // MARK: - Init -
 
-    func testInit() {
+    func testWritingCursorInit() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
-        let cursor = Buffer.Cursor(to: buffer, offset: 1, size: 2)
+        let cursor = Buffer.WritingCursor(to: buffer, offset: 1, size: 2)
+        
+        XCTAssertEqual(cursor.size,   2)
+        XCTAssertEqual(cursor.offset, 1)
+    }
+    
+    func testReadingCursorInit() {
+        let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
+        let cursor = Buffer.ReadingCursor(to: buffer, offset: 1, size: 2)
         
         XCTAssertEqual(cursor.size,   2)
         XCTAssertEqual(cursor.offset, 1)

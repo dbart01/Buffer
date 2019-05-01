@@ -27,6 +27,11 @@
 import Foundation
 
 public protocol CursorType {
+    
+    var size: Int { get }
+    
+    var offset: Int { get }
+    
     func advanceOffset(by count: Int)
 }
 

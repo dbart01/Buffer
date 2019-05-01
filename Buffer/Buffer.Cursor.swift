@@ -26,21 +26,23 @@
 
 import Foundation
 
+// MARK: - WritingCursor -
+
 extension Buffer {
-    public class Cursor: CursorType {
+    public class WritingCursor: Writable, CursorType {
         
         public let size: Int
         
         public private(set) var offset: Int
         
-        fileprivate var buffer: Buffer
+        private var writable: Writable
         
         // MARK: - Init -
         
-        internal init(to buffer: Buffer, offset: Int, size: Int) {
-            self.buffer = buffer
-            self.size   = size
-            self.offset = offset
+        internal init(to writable: Writable, offset: Int, size: Int) {
+            self.writable = writable
+            self.size     = size
+            self.offset   = offset
         }
         
         // MARK: - CursorType -
@@ -48,35 +50,56 @@ extension Buffer {
         public func advanceOffset(by count: Int) {
             self.offset += count
         }
-    }
-}
-
-extension Buffer {
-    public class WritingCursor: Cursor, Writable {
+        
+        // MARK: - Writable -
         
         public func write<T>(value: T, at offset: Int) {
-            self.buffer.write(value: value, at: self.offset + offset)
+            self.writable.write(value: value, at: self.offset + offset)
             self.advanceOffset(usingStride: T.self)
         }
         
         public func write<T>(bytes: UnsafePointer<T>, count: Int, at offset: Int) {
-            self.buffer.write(bytes: bytes, count: count, at: self.offset + offset)
+            self.writable.write(bytes: bytes, count: count, at: self.offset + offset)
             self.advanceOffset(by: count)
         }
     }
 }
 
+// MARK: - ReadingCursor -
+
 extension Buffer {
-    public class ReadingCursor: Cursor, Readable {
+    public class ReadingCursor: Readable, CursorType {
+        
+        public let size: Int
+        
+        public private(set) var offset: Int
+        
+        private var readable: Readable
+        
+        // MARK: - Init -
+        
+        internal init(to readable: Readable, offset: Int, size: Int) {
+            self.readable = readable
+            self.size     = size
+            self.offset   = offset
+        }
+        
+        // MARK: - CursorType -
+        
+        public func advanceOffset(by count: Int) {
+            self.offset += count
+        }
+        
+        // MARK: - Readable -
         
         public func read<T>(_ type: T.Type, at offset: Int) -> T {
-            let value = self.buffer.read(type, at: self.offset + offset)
+            let value = self.readable.read(type, at: self.offset + offset)
             self.advanceOffset(usingStride: T.self)
             return value
         }
         
         public func read<T>(pointerTo type: T.Type, size: Int, at offset: Int) -> UnsafePointer<T> {
-            let value = self.buffer.read(pointerTo: type, size: size, at: self.offset + offset)
+            let value = self.readable.read(pointerTo: type, size: size, at: self.offset + offset)
             self.advanceOffset(by: size)
             return value
         }
