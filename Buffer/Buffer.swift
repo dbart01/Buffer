@@ -183,9 +183,14 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
     }
     
     private func inflateIfOverflowing(at offset: Int, insertionSize: Int) {
-        let overflow = (offset + insertionSize) - self.capacity
-        if overflow > 0 {
-            self.inflate(for: overflow)
+        let capacityOverflow = (offset + insertionSize) - self.capacity
+        if capacityOverflow > 0 {
+            self.inflate(for: capacityOverflow)
+        }
+        
+        let sizeOverflow = (offset + insertionSize) - self.size
+        if sizeOverflow > 0 {
+            self.size += sizeOverflow
         }
     }
     
@@ -193,31 +198,16 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
         self.inflateIfOverflowing(at: offset, insertionSize: MemoryLayout<T>.stride)
     }
     
-    // MARK: - Increment -
-
-    private func incrementIfOverflowing(at offset: Int, insertionSize: Int) {
-        let overflow = (offset + insertionSize) - self.size
-        if overflow > 0 {
-            self.size += overflow
-        }
-    }
-    
-    private func incrementIfOverflowing<T>(at offset: Int, type: T.Type) {
-        self.incrementIfOverflowing(at: offset, insertionSize: MemoryLayout<T>.stride)
-    }
-    
     // MARK: - Writable -
 
     public func write<T>(value: T, at offset: Int) {
         self.inflateIfOverflowing(at: offset, type: T.self)
-        self.incrementIfOverflowing(at: offset, type: T.self)
         
         self.store.advanced(by: offset).initializeMemory(as: T.self, repeating: value, count: 1)
     }
     
     public func write<T>(bytes: UnsafePointer<T>, count: Int, at offset: Int) {
         self.inflateIfOverflowing(at: offset, insertionSize: count)
-        self.incrementIfOverflowing(at: offset, insertionSize: count)
         
         self.store.advanced(by: offset).initializeMemory(as: T.self, from: bytes, count: count)
     }
