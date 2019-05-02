@@ -26,10 +26,10 @@
 
 import Foundation
 
-// MARK: - WritingCursor -
+// MARK: - WritableCursor -
 
 extension Buffer {
-    public class WritingCursor: Writable, CursorType {
+    public class WritableCursor: Writable, CursorType {
         
         public let size: Int
         
@@ -65,10 +65,10 @@ extension Buffer {
     }
 }
 
-// MARK: - ReadingCursor -
+// MARK: - ReadableCursor -
 
 extension Buffer {
-    public class ReadingCursor: Readable, CursorType {
+    public class ReadableCursor: Readable, CursorType {
         
         public let size: Int
         

@@ -31,23 +31,23 @@ class Buffer_CursorTests: XCTestCase {
     
     // MARK: - Init -
 
-    func testWritingCursorInit() {
+    func testWritableCursorInit() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
-        let cursor = Buffer.WritingCursor(to: buffer, offset: 1, size: 2)
+        let cursor = Buffer.WritableCursor(to: buffer, offset: 1, size: 2)
         
         XCTAssertEqual(cursor.size,   2)
         XCTAssertEqual(cursor.offset, 1)
     }
     
-    func testReadingCursorInit() {
+    func testReadableCursorInit() {
         let buffer = Buffer([0xAB, 0xCD, 0xEF, 0xED])
-        let cursor = Buffer.ReadingCursor(to: buffer, offset: 1, size: 2)
+        let cursor = Buffer.ReadableCursor(to: buffer, offset: 1, size: 2)
         
         XCTAssertEqual(cursor.size,   2)
         XCTAssertEqual(cursor.offset, 1)
     }
     
-    // MARK: - WritingCursor -
+    // MARK: - WritableCursor -
 
     func testWriteTypesUsingBlock() {
         let buffer = Buffer(size: 7)
@@ -88,7 +88,7 @@ class Buffer_CursorTests: XCTestCase {
         XCTAssertEqual(buffer[6], 0x56)
     }
     
-    // MARK: - ReadingCursor -
+    // MARK: - ReadableCursor -
 
     func testReadTypesUsingBlock() {
         let buffer = Buffer([0x34, 0x45, 0x45, 0x56, 0x56, 0x56, 0x56])

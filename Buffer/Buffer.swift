@@ -110,21 +110,21 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
     
     // MARK: - Cursors -
 
-    public func cursorForWriting(at offset: Int) -> WritingCursor {
+    public func cursorForWriting(at offset: Int) -> WritableCursor {
         self.assertWithinBounds(at: offset, size: self.size - offset)
-        return WritingCursor(to: self, offset: offset, size: self.size - offset)
+        return WritableCursor(to: self, offset: offset, size: self.size - offset)
     }
     
-    public func write(at offset: Int = 0, block: (WritingCursor) -> Void) {
+    public func write(at offset: Int = 0, block: (WritableCursor) -> Void) {
         block(self.cursorForWriting(at: offset))
     }
     
-    public func cursorForReading(at offset: Int) -> ReadingCursor {
+    public func cursorForReading(at offset: Int) -> ReadableCursor {
         self.assertWithinBounds(at: offset, size: self.size - offset)
-        return ReadingCursor(to: self, offset: offset, size: self.size - offset)
+        return ReadableCursor(to: self, offset: offset, size: self.size - offset)
     }
     
-    public func read(at offset: Int = 0, block: (ReadingCursor) -> Void) {
+    public func read(at offset: Int = 0, block: (ReadableCursor) -> Void) {
         block(self.cursorForReading(at: offset))
     }
     
