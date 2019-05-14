@@ -242,15 +242,11 @@ public class Buffer: Writable, Readable, Collection, MutableCollection, RandomAc
     // MARK: - Visualize -
 
     private func visualize(stride: Int, group: Int = 8) -> String {
-        var hex: [String] = []
-        for byte in self {
-            let value = String(format: "%02X", byte)
-            hex.append(value)
-        }
-        
-        var output = ""
+        let hex    = self.map { String(format: "%02X", $0) }
         let perRow = Swift.min(stride, group)
         let chunks = stride / perRow
+
+        var output = ""
         output += "------- Buffer --------"
         output += "\n"
         
